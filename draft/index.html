@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculator ore</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Two soft blobs of "fog" drifting behind the card (styled in style.css) -->
+  <div class="fog fog-1"></div>
+  <div class="fog fog-2"></div>
+
+  <main class="card">
+    <h1>Calculator ore</h1>
+
+    <div class="fields">
+      <input id="start" placeholder="De la (ex: 9 30)" autocomplete="off">
+      <input id="end" placeholder="Până la (ex: 17 00)" autocomplete="off">
+    </div>
+
+    <button id="add">Adaugă</button>
+
+    <p id="total">Până acum: 0h 0m, 0.00 lei</p>
+  </main>
+
+  <script>
+    // ---------- DATA ----------
+    // Same idea as `records = []` in Python.
+    // We store only the minutes worked each day; everything else is derived.
+    const records = [];
+    const RATE_PER_HOUR = 30;
+
+    // ---------- LOGIC ----------
+
+    // Turns "9 30", "9:30" or "9.30" into minutes since midnight (570).
+    // Returns null if the text can't be understood.
+    function parseTime(text) {
+      // split on spaces, colons or dots; Number() converts text -> number
+      const [h, m = 0] = text.trim().split(/[\s:.]+/).map(Number);
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+      return h * 60 + m;
+    }
+
+    // Minutes between two times. Handles shifts that pass midnight.
+    function calcMinutes(start, end) {
+      const s = parseTime(start);
+      const e = parseTime(end);
+      if (s === null || e === null) return null;   // invalid input
+
+      let diff = e - s;
+      if (diff < 0) diff += 24 * 60;               // e.g. 22:00 -> 06:00
+      return diff;
+    }
+
+    function calcPay(minutes) {
+      return (minutes / 60) * RATE_PER_HOUR;
+    }
+
+    // ---------- OUTPUT (replaces print) ----------
+    function render() {
+      // reduce = JS version of sum(...)
+      const totalMin = records.reduce((sum, m) => sum + m, 0);
+      const hours = Math.floor(totalMin / 60);     // like divmod, part 1
+      const minutes = totalMin % 60;               // like divmod, part 2
+      const pay = calcPay(totalMin);
+
+      document.getElementById("total").textContent =
+        `Până acum: ${hours}h ${minutes}m, ${pay.toFixed(2)} lei`;
+    }
+
+    // ---------- EVENTS (replace the while loop) ----------
+    const startInput = document.getElementById("start");
+    const endInput = document.getElementById("end");
+
+    function addRecord() {
+      const minutes = calcMinutes(startInput.value, endInput.value);
+      if (minutes === null) return;                // ignore bad input
+
+      records.push(minutes);
+      render();
+
+      startInput.value = "";
+      endInput.value = "";
+      startInput.focus();                          // ready for the next day
+    }
+
+    // Enter in the 1st field -> jump to the 2nd
+    startInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") endInput.focus();
+    });
+
+    // Enter in the 2nd field -> add the day
+    endInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addRecord();
+    });
+
+    // The button does the same thing as Enter
+    document.getElementById("add").addEventListener("click", addRecord);
+
+    // Cursor ready as soon as the page opens
+    startInput.focus();
+  </script>
+</body>
+</html>

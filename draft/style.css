@@ -1,0 +1,123 @@
+/* ---------- Theme colors (change these to restyle everything) ---------- */
+:root {
+  --bg-1: #aab8c8;                          /* misty blue-grey */
+  --bg-2: #d8dee6;                          /* pale fog */
+  --glass: rgba(255, 255, 255, 0.18);       /* see-through white */
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --text: #2b3440;
+  --text-soft: rgba(43, 52, 64, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;                      /* centers the card */
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  overflow: hidden;                         /* hides fog that drifts off-screen */
+}
+
+/* ---------- Fog: big blurred circles that drift slowly ---------- */
+.fog {
+  position: fixed;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7), transparent 65%);
+  filter: blur(60px);
+  opacity: 0.6;
+  pointer-events: none;                     /* clicks pass through */
+}
+
+.fog-1 {
+  top: -20vmax;
+  left: -15vmax;
+  animation: drift 28s ease-in-out infinite alternate;
+}
+
+.fog-2 {
+  bottom: -25vmax;
+  right: -20vmax;
+  animation: drift 36s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(8vmax, 6vmax) scale(1.15); }
+}
+
+/* ---------- The frosted glass card ---------- */
+.card {
+  position: relative;                       /* sits above the fog */
+  width: min(92vw, 380px);
+  padding: 32px 28px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  backdrop-filter: blur(22px) saturate(140%);   /* the "frosted" effect */
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 10px 40px rgba(60, 80, 110, 0.18);
+}
+
+h1 {
+  margin: 0 0 24px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.fields {
+  display: grid;
+  gap: 12px;
+}
+
+/* ---------- Inputs and button: also glassy ---------- */
+input,
+button {
+  width: 100%;
+  padding: 14px 16px;
+  font: inherit;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  outline: none;
+  transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
+}
+
+input::placeholder {
+  color: var(--text-soft);
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35);   /* soft glow instead of a hard outline */
+}
+
+button {
+  margin-top: 14px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#total {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--text);
+}
